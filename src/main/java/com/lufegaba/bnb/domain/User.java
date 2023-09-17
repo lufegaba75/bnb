@@ -33,9 +33,23 @@ public class User implements Serializable {
     private Phone phone;
 
     @OneToOne (cascade = CascadeType.ALL)
-    @JoinColumn (name = "addressId", referencedColumnName = "id")
+    @JoinColumn (name = "UserAddressId", referencedColumnName = "id")
     private Address address;
 
     @OneToMany (mappedBy = "user", cascade = CascadeType.ALL)
     private Set<RoleGroup> roles;
+
+    @OneToMany (mappedBy = "owner", cascade = CascadeType.ALL)
+    private Set<Lodging> lodgings;
+
+    public boolean isHirer (User user) {
+        var userRoles =  user.getRoles().stream().toList();
+        var isHirer = false;
+        for (int i = 0; i < userRoles.size(); i++) {
+            if (userRoles.get(i).isHirer(userRoles.get(i))){
+                isHirer = true;
+            }
+        }
+        return isHirer;
+    }
 }

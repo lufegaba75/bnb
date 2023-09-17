@@ -5,6 +5,9 @@ import com.lufegaba.bnb.domain.repositories.AddressRepository;
 import com.lufegaba.bnb.domain.repositories.PhoneRepository;
 import com.lufegaba.bnb.domain.repositories.RoleGroupRepository;
 import com.lufegaba.bnb.domain.repositories.UserRepository;
+import com.lufegaba.bnb.infraestructure.exceptions.IdNotFoundException;
+import com.lufegaba.bnb.infraestructure.exceptions.RoleExistsException;
+import com.lufegaba.bnb.infraestructure.utilities.Tables;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -43,7 +47,7 @@ public class UserService {
     }
 
     public User getUserById (Integer id) {
-        return userRepository.findById(id).orElseThrow();
+        return userRepository.findById(id).orElseThrow(() -> new IdNotFoundException(Tables.users.name()));
     }
 
     public User addAddress (Integer id, Address address) {
@@ -64,6 +68,11 @@ public class UserService {
         var userToUpdate = getUserById(id);
         var roles = userToUpdate.getRoles();
         var roleGroupToAdd = roleGroupRepository.save(new RoleGroup(userToUpdate, role));
+        roles.forEach(roleGroup -> {
+            if (roleGroup.getRole().equals(roleGroupToAdd.getRole())){
+                throw new RoleExistsException();
+            }
+        });
         roles.add(roleGroupToAdd);
         userToUpdate.setRoles(roles);
         return userRepository.save(userToUpdate);
@@ -83,6 +92,6 @@ public class UserService {
     public void deleteUserById (Integer id) {
         userRepository.deleteById(id);
     }
-
+    
 
 }
