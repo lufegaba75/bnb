@@ -29,4 +29,11 @@ public class RoleGroup implements Serializable {
         this.user = user;
         this.role = role;
     }
+
+    public boolean isHirer (RoleGroup roleGroup) {
+        if (roleGroup.getRole().equals(Role.HIRER)){
+            return true;
+        }
+        return false;
+    }
 }
