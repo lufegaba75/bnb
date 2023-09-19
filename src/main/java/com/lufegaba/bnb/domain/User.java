@@ -1,5 +1,6 @@
 package com.lufegaba.bnb.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -39,8 +40,17 @@ public class User implements Serializable {
     @OneToMany (mappedBy = "user", cascade = CascadeType.ALL)
     private Set<RoleGroup> roles;
 
+    @JsonIgnore
     @OneToMany (mappedBy = "owner", cascade = CascadeType.ALL)
     private Set<Lodging> lodgings;
+
+    @JsonIgnore
+    @OneToMany (mappedBy = "updatedBy", cascade = CascadeType.ALL)
+    private Set<Reservation> reservationsUpdated;
+
+    @JsonIgnore
+    @OneToMany (mappedBy = "guest", cascade = CascadeType.ALL)
+    private Set<Reservation> reservationsMade;
 
     public boolean isHirer (User user) {
         var userRoles =  user.getRoles().stream().toList();
