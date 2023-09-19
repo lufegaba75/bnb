@@ -2,10 +2,12 @@ package com.lufegaba.bnb.controllers;
 
 import com.lufegaba.bnb.domain.Lodging;
 import com.lufegaba.bnb.domain.Role;
+import com.lufegaba.bnb.infraestructure.exceptions.IdNotFoundException;
 import com.lufegaba.bnb.infraestructure.exceptions.NoHirerException;
 import com.lufegaba.bnb.infraestructure.exceptions.UnauthorizedResourceException;
 import com.lufegaba.bnb.infraestructure.services.LodgingService;
 import com.lufegaba.bnb.infraestructure.services.UserService;
+import com.lufegaba.bnb.infraestructure.utilities.Tables;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +61,8 @@ public class LodgingUserController {
             @PathVariable Integer userId,
             @RequestBody @Valid Lodging lodging
     ){
+        if (userService.getUserById(userId) == null) throw new IdNotFoundException(Tables.users.name());
+        if (lodgingService.getLodgingById(lodgingId) == null) throw new IdNotFoundException(Tables.lodging.name());
         if (lodgingService.getLodgingById(lodgingId).getOwner().getId() != userId) {
             throw new UnauthorizedResourceException();
         }

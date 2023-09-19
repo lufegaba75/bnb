@@ -1,13 +1,7 @@
 package com.lufegaba.bnb.infraestructure.services;
 
-import com.lufegaba.bnb.domain.Address;
-import com.lufegaba.bnb.domain.Location;
-import com.lufegaba.bnb.domain.Lodging;
-import com.lufegaba.bnb.domain.User;
-import com.lufegaba.bnb.domain.repositories.AddressRepository;
-import com.lufegaba.bnb.domain.repositories.LocationRepository;
-import com.lufegaba.bnb.domain.repositories.LodgingRepository;
-import com.lufegaba.bnb.domain.repositories.UserRepository;
+import com.lufegaba.bnb.domain.*;
+import com.lufegaba.bnb.domain.repositories.*;
 import com.lufegaba.bnb.infraestructure.exceptions.IdNotFoundException;
 import com.lufegaba.bnb.infraestructure.exceptions.NoHirerException;
 import com.lufegaba.bnb.infraestructure.utilities.Tables;
@@ -29,6 +23,8 @@ public class LodgingService {
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
     private final AddressRepository addressRepository;
+    private final MediaRepository mediaRepository;
+    private final ExtrasRepository extrasRepository;
 
     public User userById (Integer id) {
         return userRepository.findById(id)
@@ -77,6 +73,22 @@ public class LodgingService {
         return lodgingToUpdate;
     }
 
+    public Lodging addMedia (Integer id, Media media) {
+        var lodgingToUpdate = getLodgingById(id);
+        var mediaSaved = mediaRepository.save(media);
+        var medias = lodgingToUpdate.getMedias();
+        medias.add(mediaSaved);
+        lodgingToUpdate.setMedias(medias);
+        return lodgingToUpdate;
+    }
+
+    public Lodging addExtras (Integer id, Extras extras) {
+        var lodgingToUpdate = getLodgingById(id);
+        var extrasSaved = extrasRepository.save(extras);
+        lodgingToUpdate.setExtras(extrasSaved);
+        return lodgingToUpdate;
+    }
+
     public void deleteLodgingById (Integer id) {
         lodgingRepository.deleteById(id);
     }
@@ -92,6 +104,11 @@ public class LodgingService {
         if (lodging.getCheckOutHour() != null) lodgingToUpdate.setCheckOutHour(lodging.getCheckOutHour());
         if (lodging.getAddress() != null) addAddress(id, lodging.getAddress());
         if (lodging.getLocation() != null) addCoordinates(id, lodging.getLocation());
+        if (lodging.getExtras() != null) addExtras(id, lodging.getExtras());
+        if (lodging.getMedias() != null) {
+            addMedia(id, lodging.getMedias().stream().findFirst()
+                    .orElseThrow(() -> new IdNotFoundException(Tables.media.name())));
+        }
         lodgingToUpdate.setUpdatedAt(LocalDateTime.now());
         return lodgingToUpdate;
     }

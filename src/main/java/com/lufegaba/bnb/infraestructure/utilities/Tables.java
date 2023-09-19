@@ -7,5 +7,7 @@ public enum Tables {
     roleGroup,
     role,
     lodging,
-    location
+    location,
+    media,
+    reservation
 }

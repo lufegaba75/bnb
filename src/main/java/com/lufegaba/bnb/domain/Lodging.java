@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Data
@@ -20,7 +21,6 @@ public class Lodging implements Serializable {
     @GeneratedValue (strategy = GenerationType.AUTO)
     private Integer id;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn (name = "owner_id", referencedColumnName = "id", nullable = true)
     private User owner;
@@ -50,4 +50,14 @@ public class Lodging implements Serializable {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @OneToMany (mappedBy = "lodging", cascade = CascadeType.ALL)
+    private Set<Media> medias;
+
+    @OneToMany (mappedBy = "lodgingReserved", cascade = CascadeType.ALL)
+    private Set<Reservation> reservations;
+
+    @OneToOne (cascade = CascadeType.ALL)
+    @JoinColumn (name = "LodgingExtrasId", referencedColumnName = "id")
+    private Extras extras;
 }
